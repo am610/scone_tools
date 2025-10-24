@@ -8,7 +8,7 @@
 
 ## Overview
 
-This toolkit provides utilities to extract, analyze, and visualize supernova data from SCONE TFRecord heatmap files. Whether you're performing quality assurance, exploring classification results, or conducting detailed analysis, these tools make it easy to work with SCONE outputs.
+This toolkit provides utilities to extract, analyze, and visualize supernova data from SCONE TFRecord heatmap files. Whether you're exploring classification results, or examining SN candidates, these tools make it easy to work with SCONE outputs.
 
 ## Features
 
