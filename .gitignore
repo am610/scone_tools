@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (don't commit large TFRecords or outputs)
+*.tfrecord
+heatmaps/
+*.csv
+!examples/*.csv  # Allow example CSV files
+
+# Output directories
+tfrecord_plots/
+extracted_data/
+sample_plots/
+statistics_plots/
+*_plots/
+*_data/
+quick_start_*/
+
+# Plots
+*.png
+*.jpg
+*.pdf
+!docs/images/*.png  # Allow documentation images
+
+# Temporary files
+*.tmp
+*.bak
+*~
+*.log
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backup files
+*_BACKUP_*
+*.md~
+*.py~
+*.sh~
