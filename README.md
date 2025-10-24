@@ -212,18 +212,7 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Submit a pull request
 
-## Citation
 
-If you use these tools in your research, please cite the SCONE paper:
-
-```bibtex
-@article{scone2024,
-  title={SCONE: Supernova Classification with Optimal Nearby Examples},
-  author={Your Name et al.},
-  journal={Journal Name},
-  year={2024}
-}
-```
 
 ## License
 
