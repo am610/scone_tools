@@ -40,6 +40,9 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sampl
 # Create statistical summary plots
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --statistics --stat_samples 1000
 ```
+<img width="2041" height="1401" alt="sample_0001_snid_309" src="https://github.com/user-attachments/assets/5294a7a1-8749-4567-82e2-ca2baf5962cd" />
+
+
 
 ## What's Included
 
