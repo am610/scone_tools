@@ -18,6 +18,14 @@ We can either make plots from the heatmap files, or extract csv files from the i
 - **⚡ Performance**: Can process millions of events (but I dont recommend ! )
 - **🎯 Flexible**: Sample randomly, plot specific events, or create statistical summaries
 
+## Example Visualization
+
+Each supernova visualization includes 5 panels showing the flux heatmap, errors, light curve, spectrum, and signal-to-noise:
+
+![Example SCONE Visualization](docs/images/example_plot.png)
+
+*Example: Type Ia supernova showing characteristic spectral evolution over time*
+
 ## Quick Start
 
 ### Installation
