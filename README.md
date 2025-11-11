@@ -113,17 +113,6 @@ See [docs/EXTRACTION_GUIDE.md](docs/EXTRACTION_GUIDE.md) for details.
 
 See [docs/VISUALIZATION_GUIDE.md](docs/VISUALIZATION_GUIDE.md) for details.
 
-## SCONE Data Format
-
-SCONE TFRecords contain 2D heatmaps with:
-- **Shape**: (32 wavelengths, 180 time bins, 2 channels)
-- **Wavelength range**: 3000-10100 Angstroms
-- **Time range**: -50 to +130 days relative to peak
-- **Channels**: [0] = flux, [1] = flux error
-- **Metadata**: SNID, label (0=Non-Ia, 1=SNIa), redshift, redshift_error
-
-See [docs/DATA_FORMAT.md](docs/DATA_FORMAT.md) for full specifications.
-
 ## Examples
 
 ### Example 1: Quick Exploration
@@ -178,12 +167,8 @@ python visualize_tfrecords.py \
 See [requirements.txt](requirements.txt) for complete dependencies.
 
 
+More examples are kept in Perlmutter: 
+`$PIPPIN_OUTPUT/LSST_ANALYSIS-2/Other/3_CLAS_BACKUP/SCONE_PREDICT_BIASCOR_LSST_BIASCOR_Ia_DEBUG/`
 
 
-
-
-Developed for analyzing SCONE outputs on NERSC Perlmutter. Thanks to the DESC collaboration and LSST community.
-
----
-
-**Happy analyzing!** 📊🔭
+Developed for analyzing SCONE outputs on NERSC Perlmutter. 
