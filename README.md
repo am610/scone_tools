@@ -8,15 +8,14 @@
 
 ## Overview
 
-This toolkit provides utilities to extract, analyze, and visualize supernova data from SCONE TFRecord heatmap files. Whether you're exploring classification results, or examining SN candidates, these tools make it easy to work with SCONE outputs.
+This toolkit provides utilities to extract, analyze, and visualize supernova data from SCONE TFRecord heatmap files. Whether exploring classification results, or examining SN candidates, these can make it easy to work with SCONE outputs.
 We can either make plots from the heatmap files, or extract csv files from the information in the TFrecord files.
 
 ## Features
 
-- **📊 Data Extraction**: Convert TFRecord heatmaps to CSV with rich summary statistics
-- **📈 Visualization**: Create comprehensive plots showing flux evolution, spectra, and light curves
-- **🔍 Analysis**: Extract 40+ statistical features per supernova for downstream analysis
-- **⚡ Performance**: Process millions of events efficiently
+- **📊 Data Extraction**: Convert TFRecord heatmaps to CSV with summary statistics
+- **📈 Visualization**: Create comprehensive plots showing light curves etc.
+- **⚡ Performance**: Can process millions of events (but I dont recommend ! )
 - **🎯 Flexible**: Sample randomly, plot specific events, or create statistical summaries
 
 ## Quick Start
@@ -28,6 +27,7 @@ git clone https://github.com/yourusername/scone_tools.git
 cd scone_tools
 pip install -r requirements.txt
 ```
+If you are on perlmutter and if scone runs in your environment without problem then you need not do anything else. 
 
 ### Basic Usage
 
@@ -35,10 +35,10 @@ pip install -r requirements.txt
 # Extract data from TFRecords to CSV
 python extract_tfrecord_info.py --tfrecord heatmaps/heatmaps_0000.tfrecord --output summary.csv
 
-# Visualize specific supernovae
+# Visualize specific supernovae by snids
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sample_ids 1009,1521,2034
 
-# Create statistical summary plots
+# Create statistical summary plots of 1000 events
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --statistics --stat_samples 1000
 ```
 <img width="2041" height="1401" alt="sample_0001_snid_309" src="https://github.com/user-attachments/assets/5294a7a1-8749-4567-82e2-ca2baf5962cd" />
@@ -67,37 +67,7 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --stati
 
 ## Use Cases
 
-### 1. Quality Assurance
-
-```bash
-# Extract data and check for anomalies
-./extract_all_tfrecords.sh qa_data
-# Analyze CSV for low SNR, poor coverage, etc.
-```
-
-### 2. Classification Analysis
-
-```python
-import pandas as pd
-
-# Load extracted data
-df = pd.read_csv('summary.csv')
-
-# Find misclassified events
-interesting = df[df['snr_mean'] < 3.0]['snid'].tolist()
-
-# Visualize them
-# python visualize_tfrecords.py --tfrecord ... --sample_ids 1234,5678
-```
-
-### 3. Population Studies
-
-```bash
-# Compare SNIa vs Non-Ia distributions
-./plot_statistics.sh 2000 population_stats
-```
-
-### 4. Individual Event Investigation
+### Individual Event Investigation
 
 ```bash
 # Deep dive into specific supernovae
@@ -111,18 +81,17 @@ python visualize_tfrecords.py \
 
 Each TFRecord event can be extracted with:
 
-### Summary Statistics (40 columns)
+### Summary Statistics 
 - Basic metadata: SNID, label, redshift
 - Flux statistics: total, max, mean, median, std
 - Peak information: location, wavelength, time
 - Light curve properties: rise/decline times, duration
 - Spectral features: peak wavelength, color ratios
-- Quality metrics: SNR, coverage statistics
+- Quality metrics: SNR, coverage statistics etc.
 
 ### Optional Exports
-- **Full Light Curves**: 180 time bins with flux and errors
-- **Peak Spectra**: 32 wavelength bins with flux and errors
-
+- **Full Light Curves**:
+- **Peak Spectra**: 
 See [docs/EXTRACTION_GUIDE.md](docs/EXTRACTION_GUIDE.md) for details.
 
 ## Visualization Capabilities
@@ -208,27 +177,10 @@ python visualize_tfrecords.py \
 
 See [requirements.txt](requirements.txt) for complete dependencies.
 
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
 
 
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- **Documentation**: See the `docs/` directory
-- **Issues**: Please report bugs via GitHub Issues
-- **Examples**: Check the `examples/` directory for usage patterns
-
-## Acknowledgments
 
 Developed for analyzing SCONE outputs on NERSC Perlmutter. Thanks to the DESC collaboration and LSST community.
 
