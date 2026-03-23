@@ -161,16 +161,17 @@ def visualize_single_heatmap(data, output_file=None):
 
     plt.close()
 
-def visualize_statistics(dataset_path, num_samples=100, output_file=None):
+def visualize_statistics(tfrecord_files, num_samples=100, output_file=None):
     """Create statistical visualizations across multiple samples"""
 
-    dataset = tf.data.TFRecordDataset(dataset_path)
+    dataset = tf.data.TFRecordDataset(tfrecord_files)
 
     all_fluxes = []
     all_labels = []
     all_redshifts = []
 
-    print(f"Reading {num_samples} samples from {dataset_path}...")
+    label = tfrecord_files if isinstance(tfrecord_files, str) else f"{len(tfrecord_files)} files"
+    print(f"Reading {num_samples} samples from {label}...")
     for i, raw_record in enumerate(dataset.take(num_samples)):
         data = parse_tfrecord(raw_record)
         all_fluxes.append(data['flux'])
@@ -302,17 +303,27 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    print(f"Reading from: {args.tfrecord}")
+    # Resolve --tfrecord to a list of files (accepts file or directory)
+    tfrecord_path = Path(args.tfrecord)
+    if tfrecord_path.is_dir():
+        tfrecord_files = sorted(str(f) for f in tfrecord_path.glob('*.tfrecord'))
+        if not tfrecord_files:
+            print(f"No .tfrecord files found in {tfrecord_path}")
+            return
+        print(f"Found {len(tfrecord_files)} tfrecord files in {tfrecord_path}")
+    else:
+        tfrecord_files = [str(tfrecord_path)]
+
     print(f"Output directory: {output_dir}")
 
     # Load dataset
-    dataset = tf.data.TFRecordDataset(args.tfrecord)
+    dataset = tf.data.TFRecordDataset(tfrecord_files)
 
     # Statistics plot
     if args.statistics:
         print("\nCreating statistical plots...")
         output_file = output_dir / "statistics.png"
-        visualize_statistics(args.tfrecord, num_samples=args.stat_samples,
+        visualize_statistics(tfrecord_files, num_samples=args.stat_samples,
                            output_file=str(output_file))
 
     # Individual sample plots
