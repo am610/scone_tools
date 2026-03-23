@@ -17,12 +17,21 @@ Usage:
     python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,2034,5678
 """
 
+import os
+import warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'          # suppress TF C++ logs (CUDA/GPU)
+os.environ['CUDA_VISIBLE_DEVICES'] = ''            # don't even try GPU
+warnings.filterwarnings('ignore', category=UserWarning, module='google.protobuf')
+
 import tensorflow as tf
+import logging
+tf.get_logger().setLevel(logging.ERROR)            # suppress TF Python-level warnings
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import argparse
-import os
+import csv
+import gzip
 from pathlib import Path
 
 # Configuration from SCONE
@@ -297,6 +306,8 @@ def main():
                        help='Number of samples for statistics')
     parser.add_argument('--output_dir', type=str, default='./tfrecord_plots',
                        help='Output directory for plots')
+    parser.add_argument('--index', type=str, default=None,
+                       help='CSV index file from index_tfrecords.py (speeds up --sample_ids lookup)')
 
     args = parser.parse_args()
 
@@ -317,9 +328,6 @@ def main():
 
     print(f"Output directory: {output_dir}")
 
-    # Load dataset
-    dataset = tf.data.TFRecordDataset(tfrecord_files)
-
     # Statistics plot
     if args.statistics:
         print("\nCreating statistical plots...")
@@ -333,17 +341,50 @@ def main():
         target_ids = [int(sid.strip()) for sid in args.sample_ids.split(',')]
         print(f"\nLooking for specific SNIDs: {target_ids}")
 
-        found_ids = set()
-        for raw_record in dataset:
-            data = parse_tfrecord(raw_record)
-            if data['id'] in target_ids:
-                print(f"Found SNID {data['id']}")
-                output_file = output_dir / f"snid_{data['id']}.png"
-                visualize_single_heatmap(data, output_file=str(output_file))
-                found_ids.add(data['id'])
+        if args.index:
+            # Use pre-built index to find which file each SNID lives in
+            id_to_file = {}
+            opener = gzip.open if args.index.endswith('.gz') else open
+            with opener(args.index, 'rt', newline='') as f:
+                for row in csv.DictReader(f):
+                    snid = int(row['snid'])
+                    if snid in target_ids:
+                        id_to_file[snid] = row['tfrecord_file']
 
-                if len(found_ids) == len(target_ids):
-                    break
+            missing_in_index = set(target_ids) - id_to_file.keys()
+            if missing_in_index:
+                print(f"Warning: SNIDs not found in index: {missing_in_index}")
+
+            # For each file that contains at least one target, scan only that file
+            file_to_ids = {}
+            for snid, fpath in id_to_file.items():
+                file_to_ids.setdefault(fpath, set()).add(snid)
+
+            found_ids = set()
+            for fpath, ids_in_file in file_to_ids.items():
+                dataset = tf.data.TFRecordDataset(fpath)
+                for raw_record in dataset:
+                    data = parse_tfrecord(raw_record)
+                    if data['id'] in ids_in_file:
+                        print(f"Found SNID {data['id']}")
+                        output_file = output_dir / f"snid_{data['id']}.png"
+                        visualize_single_heatmap(data, output_file=str(output_file))
+                        found_ids.add(data['id'])
+                        if found_ids >= ids_in_file:
+                            break
+        else:
+            # No index: scan all files sequentially
+            dataset = tf.data.TFRecordDataset(tfrecord_files)
+            found_ids = set()
+            for raw_record in dataset:
+                data = parse_tfrecord(raw_record)
+                if data['id'] in target_ids:
+                    print(f"Found SNID {data['id']}")
+                    output_file = output_dir / f"snid_{data['id']}.png"
+                    visualize_single_heatmap(data, output_file=str(output_file))
+                    found_ids.add(data['id'])
+                    if len(found_ids) == len(target_ids):
+                        break
 
         missing = set(target_ids) - found_ids
         if missing:
@@ -351,6 +392,7 @@ def main():
     else:
         # Visualize first N samples
         print(f"\nVisualizing first {args.num_samples} samples...")
+        dataset = tf.data.TFRecordDataset(tfrecord_files)
         for i, raw_record in enumerate(dataset.take(args.num_samples)):
             data = parse_tfrecord(raw_record)
             output_file = output_dir / f"sample_{i:04d}_snid_{data['id']}.png"

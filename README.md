@@ -46,12 +46,29 @@ python extract_tfrecord_info.py --tfrecord heatmaps/heatmaps_0000.tfrecord --out
 # Visualize specific supernovae by snids (single file)
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sample_ids 1009,1521,2034
 
-# Visualize specific supernovae by snids (search entire folder)
+# Visualize specific supernovae by snids (search entire folder — slow first time)
 python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,1521,2034
 
 # Create statistical summary plots of 1000 events
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --statistics --stat_samples 1000
 ```
+
+### Fast SNID Lookup with Index
+
+When searching for specific SNIDs across many TFRecord files, build a index once and reuse it:
+
+```bash
+# Step 1 — build the index (one-time cost, image data skipped for speed)
+python index_tfrecords.py --tfrecord heatmaps/ --output heatmaps/snid_index.csv.gz
+
+# Step 2 — use the index for instant lookup on every subsequent run
+python visualize_tfrecords.py \
+    --tfrecord heatmaps/ \
+    --index heatmaps/snid_index.csv.gz \
+    --sample_ids 1009,1521,2034
+```
+
+The index is a gzip-compressed CSV (`snid_index.csv.gz`, ~20–30 MB) mapping each SNID to the exact TFRecord file it lives in. Without the index, the script scans all files sequentially until all SNIDs are found.
 <img width="2041" height="1401" alt="sample_0001_snid_309" src="https://github.com/user-attachments/assets/5294a7a1-8749-4567-82e2-ca2baf5962cd" />
 
 
@@ -64,6 +81,7 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --stati
 |------|---------|
 | `extract_tfrecord_info.py` | Extract TFRecord data to CSV format |
 | `visualize_tfrecords.py` | Create heatmap visualizations |
+| `index_tfrecords.py` | Build a compressed SNID→file index for fast lookup |
 | `extract_all_tfrecords.sh` | Batch process multiple TFRecord files |
 | `plot_samples.sh` | Sample and plot events from all files |
 | `plot_statistics.sh` | Create statistical summaries for all files |
@@ -87,7 +105,14 @@ python visualize_tfrecords.py \
     --sample_ids 12345,23456 \
     --output_dir investigation_plots
 
-# Or search the whole folder (no need to know which file contains your SNIDs)
+# Search the whole folder using a pre-built index (fast)
+python visualize_tfrecords.py \
+    --tfrecord heatmaps/ \
+    --index heatmaps/snid_index.csv.gz \
+    --sample_ids 12345,23456 \
+    --output_dir investigation_plots
+
+# Search the whole folder without an index (slow — scans all files)
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
     --sample_ids 12345,23456 \
@@ -168,6 +193,7 @@ python visualize_tfrecords.py \
 
 | Operation | Output Size | Time | Notes |
 |-----------|------------|------|-------|
+| Build SNID index (40 files) | ~20–30 MB (.csv.gz) | ~few min | One-time cost; enables fast lookup |
 | Extract summaries (40 files) | ~1 GB | ~13 hrs | Most efficient for analysis |
 | Extract + light curves | ~19 GB | ~16 hrs | Full time series data |
 | Sample plots (10/file) | ~86 MB | ~7 min | Good for QA |
