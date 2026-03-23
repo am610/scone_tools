@@ -43,8 +43,11 @@ If you are on perlmutter and if scone runs in your environment without problem t
 # Extract data from TFRecords to CSV
 python extract_tfrecord_info.py --tfrecord heatmaps/heatmaps_0000.tfrecord --output summary.csv
 
-# Visualize specific supernovae by snids
+# Visualize specific supernovae by snids (single file)
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sample_ids 1009,1521,2034
+
+# Visualize specific supernovae by snids (search entire folder)
+python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,1521,2034
 
 # Create statistical summary plots of 1000 events
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --statistics --stat_samples 1000
@@ -78,9 +81,15 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --stati
 ### Individual Event Investigation
 
 ```bash
-# Deep dive into specific supernovae
+# Deep dive into specific supernovae — search a single file
 python visualize_tfrecords.py \
     --tfrecord heatmaps/heatmaps_0005.tfrecord \
+    --sample_ids 12345,23456 \
+    --output_dir investigation_plots
+
+# Or search the whole folder (no need to know which file contains your SNIDs)
+python visualize_tfrecords.py \
+    --tfrecord heatmaps/ \
     --sample_ids 12345,23456 \
     --output_dir investigation_plots
 ```

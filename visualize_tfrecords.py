@@ -14,6 +14,7 @@ Usage:
     python visualize_tfrecords.py --tfrecord heatmaps_0000.tfrecord [--num_samples 5]
     python visualize_tfrecords.py --tfrecord heatmaps_0000.tfrecord --output_dir ./plots
     python visualize_tfrecords.py --tfrecord heatmaps_0000.tfrecord --sample_ids 1009,2034,5678
+    python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,2034,5678
 """
 
 import tensorflow as tf
@@ -285,7 +286,7 @@ def visualize_statistics(tfrecord_files, num_samples=100, output_file=None):
 
 def main():
     parser = argparse.ArgumentParser(description='Visualize SCONE TFRecord heatmaps')
-    parser.add_argument('--tfrecord', required=True, help='Path to TFRecord file')
+    parser.add_argument('--tfrecord', required=True, help='Path to a TFRecord file or a directory containing *.tfrecord files')
     parser.add_argument('--num_samples', type=int, default=5,
                        help='Number of individual samples to visualize')
     parser.add_argument('--sample_ids', type=str, default=None,
