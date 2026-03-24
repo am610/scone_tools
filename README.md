@@ -44,10 +44,13 @@ If you are on perlmutter and if scone runs in your environment without problem t
 python extract_tfrecord_info.py --tfrecord heatmaps/heatmaps_0000.tfrecord --output summary.csv
 
 # Visualize specific supernovae by snids (single file)
-python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sample_ids 1009,1521,2034
+python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --snid_list 1009,1521,2034
 
 # Visualize specific supernovae by snids (index auto-detected from heatmaps/ — fast)
-python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,1521,2034
+python visualize_tfrecords.py --tfrecord heatmaps/ --snid_list 1009,1521,2034
+
+# Save as PDF instead of PNG
+python visualize_tfrecords.py --tfrecord heatmaps/ --snid_list 1009,1521,2034 --pdf
 
 # Create statistical summary plots of 1000 events
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --statistics --stat_samples 1000
@@ -63,7 +66,7 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --stati
 # Index is found automatically in heatmaps/ (fast)
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
-    --sample_ids 1009,1521,2034
+    --snid_list 1009,1521,2034
 ```
 
 **If the index is missing** (older run, or manually moved), rebuild it once:
@@ -78,7 +81,7 @@ Pass `--index` explicitly only if the index lives outside the `--tfrecord` direc
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
     --index /other/path/snid_index.csv.gz \
-    --sample_ids 1009,1521,2034
+    --snid_list 1009,1521,2034
 ```
 
 Without an index, the script falls back to scanning all files sequentially until all SNIDs are found.
@@ -115,20 +118,20 @@ Without an index, the script falls back to scanning all files sequentially until
 # Deep dive into specific supernovae — search a single file
 python visualize_tfrecords.py \
     --tfrecord heatmaps/heatmaps_0005.tfrecord \
-    --sample_ids 12345,23456 \
+    --snid_list 12345,23456 \
     --output_dir investigation_plots
 
 # Search the whole folder — index auto-detected from heatmaps/ dir (fast)
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
-    --sample_ids 12345,23456 \
+    --snid_list 12345,23456 \
     --output_dir investigation_plots
 
 # Search the whole folder without an index (slow — scans all files sequentially)
 # Only happens if snid_index.csv.gz is not present in heatmaps/
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
-    --sample_ids 12345,23456 \
+    --snid_list 12345,23456 \
     --output_dir investigation_plots
 ```
 
@@ -199,7 +202,7 @@ python examples/find_interesting_events.py predictions.csv
 # Visualize them
 python visualize_tfrecords.py \
     --tfrecord heatmaps/heatmaps_0000.tfrecord \
-    --sample_ids $(cat interesting_snids.txt)
+    --snid_list $(cat interesting_snids.txt)
 ```
 
 ## Performance
