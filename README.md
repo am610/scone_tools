@@ -46,7 +46,7 @@ python extract_tfrecord_info.py --tfrecord heatmaps/heatmaps_0000.tfrecord --out
 # Visualize specific supernovae by snids (single file)
 python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --sample_ids 1009,1521,2034
 
-# Visualize specific supernovae by snids (search entire folder — slow first time)
+# Visualize specific supernovae by snids (index auto-detected from heatmaps/ — fast)
 python visualize_tfrecords.py --tfrecord heatmaps/ --sample_ids 1009,1521,2034
 
 # Create statistical summary plots of 1000 events
@@ -55,20 +55,33 @@ python visualize_tfrecords.py --tfrecord heatmaps/heatmaps_0000.tfrecord --stati
 
 ### Fast SNID Lookup with Index
 
-When searching for specific SNIDs across many TFRecord files, build a index once and reuse it:
+`snid_index.csv.gz` is a gzip-compressed CSV (~20–30 MB) mapping each SNID to the exact TFRecord file it lives in. When searching for specific SNIDs across many files it avoids a full sequential scan.
+
+**If you ran SCONE after Mar 23 2026**, the index is auto-generated at the end of every train/predict job and written to the heatmaps output directory. `visualize_tfrecords.py` detects it automatically — no extra flags needed:
 
 ```bash
-# Step 1 — build the index (one-time cost, image data skipped for speed)
-python index_tfrecords.py --tfrecord heatmaps/ --output heatmaps/snid_index.csv.gz
-
-# Step 2 — use the index for instant lookup on every subsequent run
+# Index is found automatically in heatmaps/ (fast)
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
-    --index heatmaps/snid_index.csv.gz \
     --sample_ids 1009,1521,2034
 ```
 
-The index is a gzip-compressed CSV (`snid_index.csv.gz`, ~20–30 MB) mapping each SNID to the exact TFRecord file it lives in. Without the index, the script scans all files sequentially until all SNIDs are found.
+**If the index is missing** (older run, or manually moved), rebuild it once:
+
+```bash
+python index_tfrecords.py --tfrecord heatmaps/ --output heatmaps/snid_index.csv.gz
+```
+
+Pass `--index` explicitly only if the index lives outside the `--tfrecord` directory:
+
+```bash
+python visualize_tfrecords.py \
+    --tfrecord heatmaps/ \
+    --index /other/path/snid_index.csv.gz \
+    --sample_ids 1009,1521,2034
+```
+
+Without an index, the script falls back to scanning all files sequentially until all SNIDs are found.
 <img width="2041" height="1401" alt="sample_0001_snid_309" src="https://github.com/user-attachments/assets/5294a7a1-8749-4567-82e2-ca2baf5962cd" />
 
 
@@ -105,14 +118,14 @@ python visualize_tfrecords.py \
     --sample_ids 12345,23456 \
     --output_dir investigation_plots
 
-# Search the whole folder using a pre-built index (fast)
+# Search the whole folder — index auto-detected from heatmaps/ dir (fast)
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
-    --index heatmaps/snid_index.csv.gz \
     --sample_ids 12345,23456 \
     --output_dir investigation_plots
 
-# Search the whole folder without an index (slow — scans all files)
+# Search the whole folder without an index (slow — scans all files sequentially)
+# Only happens if snid_index.csv.gz is not present in heatmaps/
 python visualize_tfrecords.py \
     --tfrecord heatmaps/ \
     --sample_ids 12345,23456 \
